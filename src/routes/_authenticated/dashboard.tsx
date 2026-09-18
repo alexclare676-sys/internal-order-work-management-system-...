@@ -27,14 +27,14 @@ function Dashboard() {
   const [orders,setOrders] = useState<Order[]>([]); const [loading,setLoading] = useState(true);
   const [query,setQuery] = useState(""); const [dark,setDark] = useState(false); const [dialog,setDialog] = useState(false); const [mobile,setMobile] = useState(false);
   const [title,setTitle] = useState(""); const [description,setDescription] = useState(""); const [start,setStart] = useState(""); const [saving,setSaving] = useState(false);
-  const fullName = (user.user_metadata?.full_name as string | undefined) ?? user.email?.split("@")[0] ?? "مستخدم النظام";
+  const fullName = (user.user_metadata?.["full_name"] as string | undefined) ?? user.email?.split("@")[0] ?? "مستخدم النظام";
 
   async function loadOrders() { const { data,error } = await supabase.from("orders").select("id,order_number,title,description,status,created_at,work_start_at,work_end_at,updated_at").is("deleted_at",null).order("created_at",{ascending:false}).limit(50); if(error) toast.error("تعذر تحميل الطلبات"); else setOrders(data ?? []); setLoading(false); }
   useEffect(() => { void supabase.rpc("claim_initial_administrator",{_full_name:fullName}).then(() => loadOrders()); const channel=supabase.channel("orders-dashboard").on("postgres_changes",{event:"*",schema:"public",table:"orders"},()=>void loadOrders()).subscribe(); return()=>{void supabase.removeChannel(channel)}; },[]);
   useEffect(() => { document.documentElement.classList.toggle("dark",dark); },[dark]);
   const visible=useMemo(()=>orders.filter(o=>`${o.order_number} ${o.title} ${o.description} ${statusLabel[o.status]}`.toLowerCase().includes(query.toLowerCase())),[orders,query]);
   const count=(s:string)=>orders.filter(o=>o.status===s).length;
-  async function createOrder(e:React.FormEvent){e.preventDefault();setSaving(true);const {error}=await supabase.from("orders").insert({title,description,work_start_at:start?new Date(start).toISOString():null,created_by:user.id,updated_by:user.id});setSaving(false);if(error)return toast.error("تعذر إنشاء الطلب: "+error.message);toast.success("تم إنشاء الطلب بنجاح");setDialog(false);setTitle("");setDescription("");setStart("");void loadOrders();}
+  async function createOrder(e:React.FormEvent){e.preventDefault();setSaving(true);const {error}=await supabase.from("orders").insert({title,description,work_start_at:start?new Date(start).toISOString():null,created_by:user.id,updated_by:user.id});setSaving(false);if(error){toast.error("تعذر إنشاء الطلب: "+error.message);return;}toast.success("تم إنشاء الطلب بنجاح");setDialog(false);setTitle("");setDescription("");setStart("");void loadOrders();}
   async function signOut(){await supabase.auth.signOut();await navigate({to:"/auth",replace:true});}
 
   const nav=[{icon:LayoutDashboard,label:"لوحة التحكم"},{icon:BriefcaseBusiness,label:"الطلبات"},{icon:Users,label:"العمال"},{icon:FileText,label:"المستندات"},{icon:ClipboardCheck,label:"التقارير"},{icon:Archive,label:"سجل العمليات"},{icon:Settings,label:"إعدادات النظام"}];

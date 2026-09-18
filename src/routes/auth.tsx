@@ -44,8 +44,8 @@ function AuthPage() {
       ? await supabase.auth.signInWithPassword({ email, password })
       : await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
     setLoading(false);
-    if (result.error) return toast.error(result.error.message);
-    if (mode === "signup" && !result.data.session) return toast.success("تم إنشاء الحساب. تحقق من بريدك لتأكيده.");
+    if (result.error) { toast.error(result.error.message); return; }
+    if (mode === "signup" && !result.data.session) { toast.success("تم إنشاء الحساب. تحقق من بريدك لتأكيده."); return; }
     await navigate({ to: "/dashboard", replace: true });
   }
 
