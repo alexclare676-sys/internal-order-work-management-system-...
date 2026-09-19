@@ -1,15 +1,23 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "madar-system",
   "private": true,
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
+    "dev": "vite dev --host 0.0.0.0 --port 3000",
+    "dev:lan": "vite dev --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "preview": "vite preview",
+    "preview": "vite preview --host 0.0.0.0 --port 3000",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:status": "supabase status",
+    "supabase:reset": "supabase db reset",
+    "supabase:migrate": "supabase db push",
+    "create-admin": "node scripts/create-admin.mjs",
+    "setup": "npm run supabase:start && npm run supabase:reset && npm run create-admin"
   },
   "overrides": {
     "rolldown": "1.2.1"
